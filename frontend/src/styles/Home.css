@@ -1,0 +1,157 @@
+:root {
+    --fontColor: white;
+    /* 6A6A6A */
+
+    --backGroundColor: #a5a5a5;
+  }
+
+  html {
+    /* To make use of full height of page*/
+    min-height: 100%;
+    margin: 0;
+}
+
+
+body {
+    /*glass effect*/
+    /* box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+    backdrop-filter: blur( 8px );
+    -webkit-backdrop-filter: blur( 8px );
+    border-radius: 10px;
+    border: 1px solid rgba( 255, 255, 255, 0.18 );
+    margin: 0;
+    padding-bottom: 100%; */
+
+
+    background-image: url('unblurredCampusBackground.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    min-height: 100%;
+  }
+  
+.greeting {
+  display: flex;
+  justify-content: center;
+  margin-top: 32vh;
+  font-size: 275%;
+  color: var(--fontColor);
+  font-family: Tahoma;
+  text-shadow: 0vw 0.5vw 1vw rgba(0, 0, 0, 0.3);
+  
+  /* box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  backdrop-filter: blur( 8px );
+  -webkit-backdrop-filter: blur( 8px );
+  border-radius: 10px;
+  border: 1px solid rgba( 255, 255, 255, 0.18 );
+  margin: 0;
+  padding-bottom: 100%; */
+/* 
+  width: 100%; white-space: nowrap;
+  overflow: hidden; animation:
+  typing 2s,
+  cursor .4s step-end infinite alternate */
+}
+
+.query-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3vh;
+  position: relative;
+}
+
+#query {
+  width: 48vw;
+  height: 9vh;
+  border-radius: 2vw;
+  padding-right: 5vw; 
+  box-shadow: 0 0.5vw 1vw 0 rgba(0, 0, 0, 0.2), 0 0.6vh 2vh 0 rgba(0, 0, 0, 0.19);
+  border-width: 0;
+  margin: 0 auto; 
+}
+
+.query-button {
+  display: flex;
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  right: 21.5%;
+  transform: translateY(-110%); 
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: black;
+  size: 50%;
+}
+
+.query-button-image { 
+  object-fit: contain;
+  width: 30%;    /* Percentage of parent container */
+  height: auto;  /* Maintain aspect ratio */
+  border-radius: 100vw;
+}
+
+.query-button-image:hover {
+  background-color:var(--backGroundColor);
+  transition: 0.3s;
+}
+
+.query-input{
+    font-size: 150%;
+    padding-left: 2vw;
+}
+
+.filterDropdownButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 0.5vw 1vw 0 rgba(0, 0, 0, 0.2), 0 0.6vh 2vh 0 rgba(0, 0, 0, 0.19);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dropdownMenu {
+  background-color: white;
+  margin-top: 4.5vh;
+  width: 40vw;
+  height: 30vh;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0.5vw 1vw 0 rgba(0, 0, 0, 0.2), 0 0.6vh 2vh 0 rgba(0, 0, 0, 0.19);
+  border-radius: 1vw;
+}
+
+.filter-button:hover {
+  background-color: #F2F2F2;
+}
+
+.filter-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.75rem;
+}
+
+/* .filterSymbol{
+  stroke-width: 2vw; 
+  stroke-linecap: round;
+  stroke-linejoin: round;
+} */
+
+
+
+
+
+@keyframes cursor {
+    50% {border-color: transparent}
+}
+@keyframes typing {
+    from { width: 0}
+
+}
+
