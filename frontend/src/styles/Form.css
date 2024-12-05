@@ -17,10 +17,6 @@
   backdrop-filter: blur(6.6px);
   -webkit-backdrop-filter: blur(6.6px);
   border: 1px solid rgba(255, 255, 255, 0.76);
-
-
-
-
 }
 
 .form-input {
@@ -41,9 +37,9 @@
   border: none;
   border-radius: 0.8vw;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
 }
 
 .form-button:hover {
   background-color: #0056b3;
+  transition: background-color 0.2s ease-in-out;
 }

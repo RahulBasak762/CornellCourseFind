@@ -1,5 +1,7 @@
 :root {
-    --TaskBarColor: rgba(179, 27, 27)
+    /* --TaskBarColor: rgba(179, 27, 27) */
+    --TaskBarColor: transparent;
+    
       
 }
 
@@ -11,23 +13,49 @@
   right: 0;
   width: 100%;
   z-index: 1000;
+  /* margin-top: -2vh; */
   background-color: var(--TaskBarColor);
   list-style: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: white;
-  font-family: Tahoma;
-  font-size: 125%;
+  font-size: 175%;
+  font-family: sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  max-height: 10vh;
+  
 }
 
 .Logo-Button{
   background: transparent;
   border-color: transparent;
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 .home-button-image{
   max-height: 6vh;
+}
+
+.Logout-Button{
+  background-color: #FFFFFF;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.75rem 1.5rem; 
+  cursor: pointer;
+  
+}
+
+.Logout-Button:hover{
+  background-color: rgba(200, 200, 200, 0.75);
+  border-color: rgba(200, 200, 200, 0.75);
+  transition: 0.3s;
+}
+
+.title{
+  cursor: pointer;
 }
 
 

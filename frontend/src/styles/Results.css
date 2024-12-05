@@ -6,6 +6,7 @@
     align-items: center;
     justify-content: center;
     position: static;
+    cursor: pointer;
 }
 
 .results{
@@ -16,7 +17,8 @@
     font-size: 100%;
     width: 50%;
     background: rgba(255, 255, 255, 0.9);
-    border-radius: 16px;
+
+    border-radius: 1vw;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(6.6px);
     -webkit-backdrop-filter: blur(6.6px);
@@ -29,6 +31,7 @@
     padding-right: 1%;
     padding-top: 0.75vh;
     padding-bottom: 0.75vh;
+    cursor: pointer;
 }
 
 .courseDropdownMenu:hover {
@@ -47,11 +50,13 @@
   }
 
 .Description{
-    padding-right: 1vh;
+    padding-right: 1.6vh;
 }
 
 .Extraneous{
-    padding-left: 1.5vw;
+    border-left: 0.15vw solid black;
+    height: auto;
+    padding-left: 0.9vw;
 }
 
 

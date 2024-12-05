@@ -34,7 +34,7 @@ function TaskBar(){
         
         </button></li>
 
-      <li><h2>CourseFind</h2></li>
+      <li className="title" onClick={handleHomePage}><h2>CourseFind</h2></li>
 
       <li><button className="Logout-Button" onClick={handleLogout} >Logout</button>&nbsp;&nbsp;&nbsp;</li>
       

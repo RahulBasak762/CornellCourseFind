@@ -138,7 +138,10 @@ function Home() {
 
 
             <div>
-                <h1 className="greeting">What do you want to learn?</h1>
+                <h1 className="greeting">What do 
+                <br />
+                you want to learn?
+                </h1>               
             </div>
 
 
@@ -154,19 +157,23 @@ function Home() {
                             value={query} 
                             className="query-input"
                             placeholder="Ask CourseFind"
-                        />
-                        <br/>
-                    </div>
+                        ></input>
+            
+                        <button className="query-button" type="submit">Submit</button>
 
-                    <button className="query-button" type="submit">
-                        <img 
-                            className="query-button-image" 
-                            src="https://static.thenounproject.com/png/2946467-200.png" 
-                            alt="buttonpng" 
-                            border="0" 
-                        />
-                    </button>
+                        <button type='button' onClick={toggleDropdown} className="filterDropdownButton">
+                            {/* <svg className="filter-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path className="filterSymbol" d="M3 7H21M7 12H17M11 17H13" stroke="#6A6A6A"/>
+                            </svg> */}
+                            <span className="filter-label">Advanced Search</span>
+                        </button>
+
+
+
+                    </div>
+                    
                 </div>
+                
             </form>
 
 
@@ -174,13 +181,10 @@ function Home() {
 
             
 
-            <button onClick={toggleDropdown} className="filterDropdownButton">
-                <svg className="filter-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path className="filterSymbol" d="M3 7H21M7 12H17M11 17H13" stroke="#6A6A6A"/>
-                </svg>
-                <span className="filter-label">Filters</span>
-            </button>
-            {isFilterOpen && (
+
+
+
+            {/* {isFilterOpen && (
                 <div className="dropdownMenu">
 
                 
@@ -190,7 +194,7 @@ function Home() {
 
 
                 </div>
-            )}
+            )} */}
 
 
 
