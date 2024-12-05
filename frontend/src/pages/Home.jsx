@@ -72,7 +72,7 @@ function Home() {
 
     const toggleSubjectCode = (subject) => {
         setFilteredSubjectCodes(prev =>
-            prev.includes(subject) ? prev.filter(s => s !== subject) : [prev, subject]
+            prev.includes(subject) ? prev.filter(s => s !== subject) : [...prev, subject]
         )
     }
 
@@ -161,13 +161,86 @@ function Home() {
             
                         <button className="query-button" type="submit">Submit</button>
 
-                        <button type='button' onClick={toggleDropdown} className="filterDropdownButton">
-                            {/* <svg className="filter-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path className="filterSymbol" d="M3 7H21M7 12H17M11 17H13" stroke="#6A6A6A"/>
-                            </svg> */}
-                            <span className="filter-label">Advanced Search</span>
-                        </button>
+                        {isFilterOpen || 
+                            <button type='button' onClick={toggleDropdown} className="closedFilterDropdownButton">
+                            <span className="filter-label">Open Filters</span>
+                            </button>
+                        }
 
+
+
+
+                        {isFilterOpen &&
+                            <div className="buttonContainers">
+                                <div className="dropdownMenu">
+
+                                    <div className="headerContainer">
+
+                                        <div className='subjectCode'>
+                                            Subject Area
+                                            <br/>
+
+                                            <div  className="distributionSelectDeselectAllText" onClick={toggleAllSubjectCodes}>
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={filteredSubjectCodes.length === subjectCodes.length}
+                                                    onChange={() => {}}
+                                                />
+
+                                                <span>
+                                                    {filteredSubjectCodes.length === subjectCodes.length
+                                                        ? 'Deselect All' 
+                                                        : 'Select All'}
+                                                </span>
+                                            </div>
+
+                    
+                                            <div className="subjectCodeCheckboxes">
+                                                {subjectCodes.map(subjectCode => (
+                                                <div 
+                                                    key={subjectCode}
+                                                    onClick={() => toggleSubjectCode(subjectCode)}
+                                                >
+                                                    <input 
+                                                    type="checkbox"
+                                                    checked={filteredSubjectCodes.includes(subjectCode)}
+                                                    onChange={() => {}}
+                                                    />
+                                                    <span>{subjectCode}</span>
+                                                </div>
+                                                ))}
+                                            </div>
+                                            
+
+                                        </div>
+
+
+                                        <div className='subjectNumbers'>
+                                            Course Number
+                                        </div>
+
+
+                                        <div className='credits'>
+                                            Credits
+                                        </div>
+
+
+                                        <div className='distributions'>
+                                            Distributions
+                                        </div>
+
+
+
+                                    </div>
+
+                                </div>
+                                <button type='button' onClick={toggleDropdown} className="openFilterDropdownButton">Close Filters</button>
+                                
+
+
+                                {/* Subject Area, Subject Numbers, Credits, Distributions/LAD , fws*/}
+                            </div>
+                        }
 
 
                     </div>
@@ -175,30 +248,6 @@ function Home() {
                 </div>
                 
             </form>
-
-
-
-
-            
-
-
-
-
-            {/* {isFilterOpen && (
-                <div className="dropdownMenu">
-
-                
-
-                    <label className="creditHour">Credit Hours</label>
-
-
-
-                </div>
-            )} */}
-
-
-
-
 
         </div>
     )
