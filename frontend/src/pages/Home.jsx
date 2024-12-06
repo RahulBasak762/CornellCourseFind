@@ -8,9 +8,8 @@ import TaskBar from "../components/TaskBar";
 
 
 function Home() {
-    const subjectCodes = [
-        "AAS", "AEM", "AEP", "AIIS", "AIRS", "ALS", "AMST", "ANSC", "ANTHR", 
-        "ARAB", "ARCH", "ARKEO", "ART", "ARTH", "AS", "ASIAN", "ASL", "ASRC", 
+    const subjectCodes = [ "AAS", "AEM", "AEP", "AIIS", "AIRS", "ALS", "AMST", "ANSC", 
+        "ANTHR", "ARAB", "ARCH", "ARKEO", "ART", "ARTH", "AS", "ASIAN", "ASL", "ASRC", 
         "ASTRO", "BCS", "BEE", "BENGL", "BIOAP", "BIOCB", "BIOEE", "BIOGB", 
         "BIOMG", "BIOMI", "BIOMS", "BIONB", "BME", "BSOC", "BTRY", "BURM", 
         "CAPS", "CEE", "CHEM", "CHENG", "CHERO", "CHIN", "CHLIT", "CLASS", 
@@ -33,16 +32,24 @@ function Home() {
         "VTPEH", "VTPMD", "WOLOF", "WRIT", "YORUB", "ZULU"
       ];
       
-      const distributionCodes = ['ALC-AAP', 'ALC-AS', 'ALC-HA', 'BIO-AG', 'BIO-AS', 
+    const distributionCodes = ['ALC-AAP', 'ALC-AS', 'ALC-HA', 'BIO-AG', 'BIO-AS', 
         'BIOLS-AG', 'BIONLS-AG', 'CA-AAP', 'CA-AG', 'CA-AS', 'CA-HE', 'CE-EN', 
         'CHPH-AG', 'D-AG', 'D-HE', 'ETM-AAP', 'ETM-AS', 'ETM-HA', 'FL-AAP', 'FL-AG',
-         'GB', 'GHB', 'GLC-AAP', 'GLC-AS', 'GLC-HA', 'HA-AAP', 'HA-AG', 'HA-AS', 
-         'HA-HE', 'HB', 'HST-AAP', 'HST-AS', 'HST-HA', 'KCM-AAP', 'KCM-AG', "KCM-AS", 
-         "KCM-HE", "LA-AAP", "LA-AG", "LA-AS", "LAD-HE", "MQL-AG", "MQR-AAP", "MQR-AS", 
-         "MQR-HE", "OPHLS-AG", "ORL-AG", "PBS-AAP", "PBS-AS", "PBS-HE", "PBSS-AS", 
-         "PHS-AAP", "PHS-AS", "SBA-AAP", "SBA-AG", "SBA-AS", "SBA-HE", "SCD-AAP", 
-         "SCD-AS", "SCD-HA", "SDS-AAP", "SDS-AS", "SDS-HA", "SMR-AAP", "SMR-AS", 
-         "SMR-HA", "SSC-AAP", "SSC-AS", "SSC-HA", "WRT-AG"];
+        'GB', 'GHB', 'GLC-AAP', 'GLC-AS', 'GLC-HA', 'HA-AAP', 'HA-AG', 'HA-AS', 
+        'HA-HE', 'HB', 'HST-AAP', 'HST-AS', 'HST-HA', 'KCM-AAP', 'KCM-AG', "KCM-AS", 
+        "KCM-HE", "LA-AAP", "LA-AG", "LA-AS", "LAD-HE", "MQL-AG", "MQR-AAP", "MQR-AS", 
+        "MQR-HE", "OPHLS-AG", "ORL-AG", "PBS-AAP", "PBS-AS", "PBS-HE", "PBSS-AS", 
+        "PHS-AAP", "PHS-AS", "SBA-AAP", "SBA-AG", "SBA-AS", "SBA-HE", "SCD-AAP", 
+        "SCD-AS", "SCD-HA", "SDS-AAP", "SDS-AS", "SDS-HA", "SMR-AAP", "SMR-AS", 
+        "SMR-HA", "SSC-AAP", "SSC-AS", "SSC-HA", "WRT-AG"];
+
+    const liberalArtDistribution = ['ALC-AAP', 'ALC-AS', 'ALC-HA', 'CA-AAP', 
+        'CA-AG', 'CA-AS', 'CA-HE', "LA-AAP", "LA-AG", "LA-AS", "LAD-HE", "SCD-HA", 
+        'HST-AAP', 'HST-AS', 'HST-HA', 'HA-AAP', 'HA-AG', 'HA-AS', 'HA-HE', 'KCM-AAP', 
+        'KCM-AG', "KCM-AS", "KCM-HE", 'ETM-AAP', 'ETM-AS', 'ETM-HA', "SBA-AAP", "SBA-AG", 
+        "SBA-AS", "SBA-HE", "SSC-AAP", "SSC-AS", "SSC-HA", 'GLC-AAP', 'GLC-AS', 'GLC-HA', 
+        'GLC-AAP', 'GLC-AS', 'GLC-HA', 'FL-AAP', 'FL-AG', 'CE-EN', 'SCD-AS', 'D-AG'];
+
 
     const navigate = useNavigate();
     const [query, setQuery] = useState("")
@@ -86,30 +93,35 @@ function Home() {
 
       const toggleDistribution = (distribution) => {
         setDistributions(prev => 
-            prev.includes(distribution) ? prev.filter(s => s !== distribution) : [prev, distribution]
+            prev.includes(distribution) ? prev.filter(s => s !== distribution) : [...prev, distribution]
         )
       }
 
-
-
+      const setLAD = () => {
+        setDistributions(liberalArtDistribution);
+      }
 
     const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
         try {
             //TODO: figure out what the url is
-            const response = await api.post("chat/", {query})
+            const response = await api.post("chat/", {query, minCourseNumber, maxCourseNumber, filteredSubjectCodes, filteredDistributions})
             if (response.data) {
                 // Navigate to results page with the processed data
                 navigate("/results", {
                     state: {
                         result: response.data,
-                        query: query
+                        query: query,
+                        minCourseNumber: minCourseNumber,
+                        maxCourseNumber: maxCourseNumber,
+                        subjectCodes: filteredSubjectCodes,
+                        distributions: filteredDistributions
                     }
                 });
             } else {
                 throw new Error('No data received from server');
-            }
+            } 
         } catch(error) {
             alert(error);
             handleLogout;
@@ -180,7 +192,7 @@ function Home() {
                                             Subject Area
                                             <br/>
 
-                                            <div  className="distributionSelectDeselectAllText" onClick={toggleAllSubjectCodes}>
+                                            <div  className="subjectCodeSelectDeselectAllText" onClick={toggleAllSubjectCodes}>
                                                 <input 
                                                     type="checkbox"
                                                     checked={filteredSubjectCodes.length === subjectCodes.length}
@@ -192,6 +204,7 @@ function Home() {
                                                         ? 'Deselect All' 
                                                         : 'Select All'}
                                                 </span>
+
                                             </div>
 
                     
@@ -217,6 +230,33 @@ function Home() {
 
                                         <div className='subjectNumbers'>
                                             Course Number
+                                            <br/>
+                                            <label className='MinMaxLabels'>Min: </label>
+                                            <br/>
+                                            <input 
+                                            type="number" 
+                                            placeholder="Min"
+                                            value={minCourseNumber}
+                                            onChange={(e) => setMinCourseNumber(e.target.value)}
+                                            className="MinMaxInputs"
+                                            step='1000'
+                                            min='0'
+                                            max={maxCourseNumber}
+                                            />
+
+                                            <label className='MinMaxLabels'>Max: </label>
+                                            <br/>
+                                            <input 
+                                            type="number" 
+                                            placeholder="Max"
+                                            value={maxCourseNumber}
+                                            onChange={(e) => setMaxCourseNumber(e.target.value)}
+                                            className="MinMaxInputs"
+                                            step='1000'
+                                            min={minCourseNumber}
+                                            max='10000'
+                                            />
+
                                         </div>
 
 
@@ -226,7 +266,54 @@ function Home() {
 
 
                                         <div className='distributions'>
+
                                             Distributions
+                                            <br/>
+
+                                            <div  className="distributionSelectDeselectAllText" onClick={toggleAllDistributions}>
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={filteredDistributions.length === distributionCodes.length}
+                                                    onChange={() => {}}
+                                                />
+
+                                                <span>
+                                                    {filteredDistributions.length === distributionCodes.length
+                                                        ? 'Deselect All' 
+                                                        : 'Select All'}
+                                                </span>
+                                            </div>
+
+                                            <div className='isLAD' onClick={setLAD}>
+
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={filteredDistributions.every(value => liberalArtDistribution.includes(value))}
+                                                    onChange={() => {}}
+                                                />
+
+                                                <span>
+                                                    Liberal Art Distributions
+                                                </span>
+
+                                            </div>
+                                        
+
+                                            <div className="distributionCheckboxes">
+                                                {distributionCodes.map(distributionCode => (
+                                                <div 
+                                                    key={distributionCode}
+                                                    onClick={() => toggleDistribution(distributionCode)}
+                                                >
+                                                    <input 
+                                                    type="checkbox"
+                                                    checked={filteredDistributions.includes(distributionCode)}
+                                                    onChange={() => {}}
+                                                    />
+                                                    <span>{distributionCode}</span>
+                                                </div>
+                                                ))}
+                                            </div>
                                         </div>
 
 

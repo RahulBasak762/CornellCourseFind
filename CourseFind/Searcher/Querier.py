@@ -9,12 +9,17 @@ model.max_seq_length = 8192
 
 
 #TODO: fws, subject area (array), course numbhers (min and max), distributions (array), credits (min and max)
-def querier(seasonCode, description):
+def querier(seasonCode, description, minCourseNumber, maxCourseNumber, subjectCodes, distributions):
+    print()
+    print("subjectCodes: " + str(subjectCodes[0]))
+    print("distributions: " + str(distributions[0]))
+    
     print(1)
     conn = sqlite3.connect("../CourseFind/Searcher/Data/" + seasonCode + ".db")
     print(2)
     # Create a cursor object
     cursor = conn.cursor()
+
 
     #TESTING
     cursor.execute("""
@@ -28,22 +33,37 @@ def querier(seasonCode, description):
 
     print(4)
 
-    query = "SELECT description_vector, full_name, description, credits, distributions FROM courses"
+    query = """
+    SELECT description_vector, full_name, description, credits, distributions, subject 
+    FROM courses 
+    WHERE course_number >= ? AND course_number <= ?
+    """
 
-    cursor.execute(query)
+
+    cursor.execute(query, (minCourseNumber, maxCourseNumber))
     courseList = cursor.fetchall()
     ratedCourses = []
 
     print(5)
+
+    
 
     for i in range(len(courseList)):
         name = courseList[i][1]
         item = pickle.loads(courseList[i][0])
         desc = courseList[i][2]
         credits = courseList[i][3]
-        distributions = courseList[i][4]
+        courseDistributions = courseList[i][4]
+        subjectCode = courseList[i][5]
         similarityScore = model.similarity(vector, item).item()
-        ratedCourses.append([name, similarityScore, desc, credits, distributions])
+        if (subjectCode in subjectCodes):
+            print(name)
+            for distribution in distributions:
+                print(distribution)
+                print(courseDistributions)
+                print()
+                if (distribution in courseDistributions):
+                    ratedCourses.append([name, similarityScore, desc, credits, courseDistributions, subjectCode])
 
     print(6)
 
@@ -51,13 +71,21 @@ def querier(seasonCode, description):
     ratedCourses = sorted(ratedCourses, key=lambda x: x[1])
     ratedCourses.reverse()
     ratedCourses = ratedCourses[0:49]
+    # print(ratedCourses)
 
-    print(7)
+    # finalRatedCourses = []
+
+    # for i in range(len(ratedCourses)):
+    #     for j in range(len(distributions)):
+    #         if (ratedCourses[i][5] in subjectCodes):
+    #             print(ratedCourses[i][0])
+    #             print("Distributions: " + distributions[j])
+    #             print("Course distributions: " + ratedCourses[i][4])
+    #             print()
+    #             if (distributions[j] in ratedCourses[i][4]):
+    #                 finalRatedCourses.append(ratedCourses[i])
 
     print("Classes most similar to: " + description)
-
-    # for i in range(30):
-    #     print(str(ratedCourses[i][1]) + ": " + str(ratedCourses[i][0]))
 
     conn.close()
 

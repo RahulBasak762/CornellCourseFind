@@ -26,20 +26,22 @@ class currentChat(APIView):
 
     def post(self, request):
         query = request.data.get('query')
+        minCourseNumber = request.data.get('minCourseNumber')
+        maxCourseNumber = request.data.get('maxCourseNumber')
+        subjectCodes = request.data.get('filteredSubjectCodes')
+        distributions = request.data.get('filteredDistributions')
+        print(minCourseNumber)
         
         # Your query processing logic here
-        processed_result = self.process_query(query)
+        processed_result = self.process_query(query, minCourseNumber, maxCourseNumber, subjectCodes, distributions)
         
         return Response({
             'result': processed_result,
             'query': query
         })
     
-    def process_query(self, query):
-        # Implement your query analysis logic here
-        # Return the processed result
-        #pass
-        return querier("SP25", query)
+    def process_query(self, query, minCourseNumber, maxCourseNumber, subjectCodes, distributions):
+        return querier("SP25", query, minCourseNumber, maxCourseNumber, subjectCodes, distributions)
     
 class LogoutView(APIView):
     def post(self, request):
