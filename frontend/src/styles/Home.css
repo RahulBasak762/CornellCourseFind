@@ -169,20 +169,23 @@ body {
 }
 
 .subjectCodeSelectDeselectAllText{
-  padding-bottom: 0.5vh;
+  padding-top: 0.5vh;
   font-size: 80%;
-  padding-top: 1.5vh;
-  padding-bottom: 1.5vh;
+}
+
+.isFWS{
+  font-size: 80%;
+  padding-bottom: 0.5vh;
 }
 
 .subjectCodeCheckboxes{
   height: 21vh;
-  width: 60%;
+  width: 75%;
   overflow: scroll;
   scrollbar-width: thin;
   font-size: 80%;
   text-align: left;
-  margin-left: 28.25%;
+  margin-left: 22.5%;
 }
 
 .subjectCodeCheckboxes::-webkit-scrollbar {
@@ -252,12 +255,12 @@ body {
 
 .distributionCheckboxes{
   height: 21vh;
-  width: 60%;
+  width: 75%;
   overflow: scroll;
   scrollbar-width: thin;
   font-size: 80%;
   text-align: left;
-  margin-left: 28.25%;
+  margin-left: 22.5%;
 }
 
 .distributionCheckboxes::-webkit-scrollbar {

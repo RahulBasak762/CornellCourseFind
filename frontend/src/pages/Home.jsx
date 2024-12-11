@@ -59,12 +59,14 @@ function Home() {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const [filteredSubjectCodes, setFilteredSubjectCodes] = useState(subjectCodes);
-    const [filteredDistributions, setDistributions] = useState(distributionCodes);
+    const [filteredDistributions, setDistributions] = useState([]);
 
     const [minCreditHours, setMinCreditHours] = useState(0);
-    const [maxCreditHours, setMaxCreditHours] = useState(10);
+    const [maxCreditHours, setMaxCreditHours] = useState(15);
     const [minCourseNumber, setMinCourseNumber] = useState(0);
     const [maxCourseNumber, setMaxCourseNumber] = useState(10000);
+
+    const [requireFWS, setRequireFWS] = useState(false)
 
 
     const toggleDropdown = () => setIsFilterOpen(!isFilterOpen);
@@ -106,7 +108,7 @@ function Home() {
         e.preventDefault();
         try {
             //TODO: figure out what the url is
-            const response = await api.post("chat/", {query, minCourseNumber, maxCourseNumber, filteredSubjectCodes, filteredDistributions})
+            const response = await api.post("chat/", {query, minCourseNumber, maxCourseNumber, filteredSubjectCodes, filteredDistributions, minCreditHours, maxCreditHours, requireFWS})
             if (response.data) {
                 // Navigate to results page with the processed data
                 navigate("/results", {
@@ -116,7 +118,9 @@ function Home() {
                         minCourseNumber: minCourseNumber,
                         maxCourseNumber: maxCourseNumber,
                         subjectCodes: filteredSubjectCodes,
-                        distributions: filteredDistributions
+                        distributions: filteredDistributions,
+                        maxCredits: maxCreditHours,
+                        requireFWS: requireFWS
                     }
                 });
             } else {
@@ -196,7 +200,7 @@ function Home() {
                                                 <input 
                                                     type="checkbox"
                                                     checked={filteredSubjectCodes.length === subjectCodes.length}
-                                                    onChange={() => {}}
+                                                    onChange={() => {toggleAllSubjectCodes}}
                                                 />
 
                                                 <span>
@@ -205,6 +209,17 @@ function Home() {
                                                         : 'Select All'}
                                                 </span>
 
+                                            </div>
+                                            <div className="isFWS" onClick={() => {setRequireFWS(!requireFWS)}}>
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={requireFWS}
+                                                    onChange={() => {}}
+                                                />
+
+                                                <span>
+                                                    FWS Required
+                                                </span>
                                             </div>
 
                     
@@ -231,7 +246,7 @@ function Home() {
                                         <div className='subjectNumbers'>
                                             Course Number
                                             <br/>
-                                            <label className='MinMaxLabels'>Min: </label>
+                                            <label className='MinMaxLabels'>Minimum: </label>
                                             <br/>
                                             <input 
                                             type="number" 
@@ -244,7 +259,7 @@ function Home() {
                                             max={maxCourseNumber}
                                             />
 
-                                            <label className='MinMaxLabels'>Max: </label>
+                                            <label className='MinMaxLabels'>Maximum: </label>
                                             <br/>
                                             <input 
                                             type="number" 
@@ -262,6 +277,32 @@ function Home() {
 
                                         <div className='credits'>
                                             Credits
+                                            <br/>
+                                            <label className='MinMaxLabels'>Minimum: </label>
+                                            <br/>
+                                            <input 
+                                            type="number" 
+                                            placeholder="Min"
+                                            value={minCreditHours}
+                                            onChange={(e) => setMinCreditHours(e.target.value)}
+                                            className="MinMaxInputs"
+                                            step='1'
+                                            min='0'
+                                            max={maxCreditHours}
+                                            />
+
+                                            <label className='MinMaxLabels'>Maximum: </label>
+                                            <br/>
+                                            <input 
+                                            type="number" 
+                                            placeholder="Max"
+                                            value={maxCreditHours}
+                                            onChange={(e) => setMaxCreditHours(e.target.value)}
+                                            className="MinMaxInputs"
+                                            step='1'
+                                            min={minCreditHours}
+                                            max='15'
+                                            />
                                         </div>
 
 
@@ -288,7 +329,7 @@ function Home() {
 
                                                 <input 
                                                     type="checkbox"
-                                                    checked={filteredDistributions.every(value => liberalArtDistribution.includes(value))}
+                                                    checked={filteredDistributions.every(value => liberalArtDistribution.includes(value)) && filteredDistributions.length === liberalArtDistribution.length}
                                                     onChange={() => {}}
                                                 />
 

@@ -30,18 +30,20 @@ class currentChat(APIView):
         maxCourseNumber = request.data.get('maxCourseNumber')
         subjectCodes = request.data.get('filteredSubjectCodes')
         distributions = request.data.get('filteredDistributions')
-        print(minCourseNumber)
+        minCredits = request.data.get('minCreditHours')
+        maxCredits = request.data.get('maxCreditHours')
+        requireFWS = request.data.get('requireFWS')
         
         # Your query processing logic here
-        processed_result = self.process_query(query, minCourseNumber, maxCourseNumber, subjectCodes, distributions)
+        processed_result = self.process_query(query, minCourseNumber, maxCourseNumber, subjectCodes, distributions, minCredits, maxCredits, requireFWS)
         
         return Response({
             'result': processed_result,
             'query': query
         })
     
-    def process_query(self, query, minCourseNumber, maxCourseNumber, subjectCodes, distributions):
-        return querier("SP25", query, minCourseNumber, maxCourseNumber, subjectCodes, distributions)
+    def process_query(self, query, minCourseNumber, maxCourseNumber, subjectCodes, distributions, minCredits, maxCredits, requireFWS):
+        return querier("SP25", query, minCourseNumber, maxCourseNumber, subjectCodes, distributions, minCredits, maxCredits, requireFWS)
     
 class LogoutView(APIView):
     def post(self, request):
