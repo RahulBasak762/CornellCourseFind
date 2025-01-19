@@ -28,14 +28,12 @@ const Results = () => {
 
 
   return (
-    <div>
-      <TaskBar/>
+    <div className='resultsContainter'>
+      <div className='taskBarContainer'><TaskBar/></div>
       <div className='results'>
-        {result["result"].map(([name, similarity_score, desc, credits, distributions], index) => (
+        {result["result"].map(([name, similarity_score, desc, credits, distributions, subjectCode, courseNumber, prereqs], index) => (
               <div key={index} className="individualResult">
                 <button className="courseDropdownMenu" onClick={() => toggleDescriptionVisibility(index)}>
-
-
 
                   {visibleDescriptions[index] ? '▲' : '▼'} &nbsp; {name}
 
@@ -46,7 +44,8 @@ const Results = () => {
                       Credits: {credits}
                       <br/>
                       Distributions: {distributions || 'None'}
-                      
+                      <br/>
+                      {prereqs || "Prerequisites: None"}8
                       </div>
                   </div>
                 

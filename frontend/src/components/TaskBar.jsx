@@ -9,7 +9,7 @@ function TaskBar(){
         try {
           const accessToken = localStorage.getItem('ACCESS_TOKEN');
           const refreshToken = localStorage.getItem('REFRESH_TOKEN');
-          await api.post('/api/logout/', { access_token: accessToken, refresh_token: refreshToken });
+          await api.post('http://localhost:8000/api/logout/', { access_token: accessToken, refresh_token: refreshToken });
           localStorage.removeItem('ACCESS_TOKEN');
           localStorage.removeItem('REFRESH_TOKEN');
           navigate("/login")

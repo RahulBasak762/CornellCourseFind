@@ -6,14 +6,13 @@ import sqlite3
 import os
 import pickle
 
-seasonCode = "FA24"  # Set the season for which semester to get information for
+seasonCode = "SP25"  # Set the season for which semester to get information for
 
 def makeDB(seasonCode):
-
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    model = SentenceTransformer("Alibaba-NLP/gte-Qwen2-1.5B-instruct",
-                                trust_remote_code=True)  # import model to vectorize course descriptions
-    model.max_seq_length = 8192  # maximize max input size to optimize in the case of abnormally long string
+    model = SentenceTransformer("avsolatorio/GIST-all-MiniLM-L6-v2",
+                                trust_remote_code=True)
+    model.max_seq_length = 8192
 
     # Request the main page for the specified season code and parse the HTML
     mainPage = requests.get("https://classes.cornell.edu/browse/roster/" + seasonCode)
@@ -54,95 +53,8 @@ def makeDB(seasonCode):
             tempCourses.append(name)
         courses[subjectCode] = tempCourses  # Map subject code to its list of courses
 
-    courseRoster = {} # Dictionary for storing all course descriptions
-    courseCreditHours = {} # Dictionary for storing all course credits
-    courseDistributions = {} # Dictionary for storing all course distributions
-    courseVectors = {} # Dictionary for storing all course vectors
-    courseRatings = {} # Dictionary for storing all course ratings
-
-    for subjectCode in courses.keys():
-        subjectRoster = {}  # Dictionary for storing course descriptions per subject
-        subjectCredits = {}  # Dictionary for storing course credits per subject
-        subjectDistributions = {}  # Dictionary for storing course distributions per subject
-        subjectVectors = {}  # Dictionary for storing course description vectors per subject
-        subjectRatings = {}  # Dictionary for storing course ratings per subject
-        for course in courses[subjectCode]:
-            # Construct the URL for the specific course's details page
-            websiteDomain = (subjectCodeLines[subjectCode][0:47] + "class/" + subjectCode + "/" +
-                            course[len(course) - 4: len(course)])
-            coursePage = requests.get(websiteDomain)  # Get the course details page
-            soup = BeautifulSoup(coursePage.text, "html.parser")
-
-            # Extract course name using a specific ID pattern
-            courseName = soup.find("a", id="dtitle-" + course.replace(" ", ""))
-            if courseName:
-                courseName = courseName.text.strip()
-
-            # Extract the course description
-            courseDescription = soup.find('p', class_='catalog-descr')
-            if courseDescription:
-                courseDescription = courseDescription.text.strip()
-
-            # Extract the amount of credit hourse
-            creditHours = soup.find('span', class_='credit-val')
-            if creditHours:
-                creditHours = creditHours.text.strip()
-
-            # Extract the distribution categories
-            courseDistribution = soup.find('span', class_='catalog-distr')
-            if courseDistribution:
-                courseDistribution = courseDistribution.text.strip()[
-                                    22:len(courseDistribution.text)]  # Clean the distributions string
-            else:
-                courseDistribution = ""
-
-            overallRating = [-1.0, -1.0, -1.0]
-            with sync_playwright() as p:
-                try:
-                    browser = p.chromium.launch(headless=True)
-
-                    # Open a new page
-                    page = browser.new_page()
-
-                    # Navigate to the website
-                    page.goto("https://www.cureviews.org/course/" + subjectCode + "/" +
-                            course[len(course) - 4: len(course)])
-                    # Wait for the rating element to load (adjust selector based on actual HTML)
-                    page.wait_for_selector("._rating_zvrrc_22", timeout=1000)
-                    # Extract the rating
-                    overallRating = page.query_selector_all("._rating_zvrrc_22")
-
-                    for i in range(3):
-                        overallRating[i] = float(overallRating[i].text_content().strip())
-                except Exception as e:
-                    overallRating = [-1.0, -1.0, -1.0]
-                finally:
-                    # Close the browser
-                    browser.close()
-
-            # Vector creation
-            vector = model.encode(course + " | " + courseName + ": " + courseDescription,
-                                convert_to_numpy=True)
-
-            # Map course title to its description
-            subjectRoster[course + " | " + courseName] = courseDescription
-            subjectCredits[course + " | " + courseName] = creditHours
-            subjectDistributions[course + " | " + courseName] = courseDistribution[0:
-                                                                                len(courseDistribution)]
-            subjectVectors[course + " | " + courseName] = vector
-            subjectRatings[course + " | " + courseName] = overallRating
-            print(course + " | " + courseName)
-
-        courseRoster[subjectCode] = subjectRoster  # Store the subject roster descriptions
-        courseCreditHours[subjectCode] = subjectCredits  # Store the subject credits
-        courseDistributions[subjectCode] = subjectDistributions  # Store the subject distributions
-        courseVectors[subjectCode] = subjectVectors  # Store the subject vectors
-        courseRatings[subjectCode] = subjectRatings  # Store the subject ratings
-
-    # Connect to SQLite database (or create it if it doesn't exist)
-    conn = sqlite3.connect(seasonCode + ".db")  # Specify your database name
-
-    # Create a cursor object
+    # Create database connection and schema
+    conn = sqlite3.connect(seasonCode + ".db")
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -152,6 +64,7 @@ def makeDB(seasonCode):
         subject TEXT NOT NULL,
         course_number INTEGER NOT NULL,
         description TEXT,
+        prerequisites TEXT,
         description_vector BLOB,
         distributions TEXT,
         credits TEXT,
@@ -164,6 +77,102 @@ def makeDB(seasonCode):
     ''')
     conn.commit()
 
+    courseRoster = {}
+    courseCreditHours = {}
+    courseDistributions = {}
+    courseVectors = {}
+    courseRatings = {}
+    coursePrereqs = {}
+
+    for subjectCode in courses.keys():
+        subjectRoster = {}
+        subjectCredits = {}
+        subjectDistributions = {}
+        subjectVectors = {}
+        subjectRatings = {}
+        subjectPrereqs = {}
+        
+        for course in courses[subjectCode]:
+            # Construct the URL for the specific course's details page
+            websiteDomain = (subjectCodeLines[subjectCode][0:47] + "class/" + subjectCode + "/" +
+                            course[len(course) - 4: len(course)])
+            coursePage = requests.get(websiteDomain)
+            soup = BeautifulSoup(coursePage.text, "html.parser")
+
+            # Extract course name
+            courseName = soup.find("a", id="dtitle-" + course.replace(" ", ""))
+            if courseName:
+                courseName = courseName.text.strip()
+            else:
+                continue  # Skip this course if we can't find its name
+
+            # Extract prerequisites
+            prerequisites = ""
+            prereq_element = soup.find('span', class_='catalog-prereq')
+            if prereq_element:
+                prereq_texts = [] 
+                for span in prereq_element.find_all('span', class_='catalog-prompt'):
+                    if span.next_sibling:
+                        prereq_texts.append(span.next_sibling.strip())
+                prerequisites = ' '.join(prereq_texts)
+
+            # Extract the course description
+            courseDescription = soup.find('p', class_='catalog-descr')
+            if courseDescription:
+                courseDescription = courseDescription.text.strip()
+
+            # Extract the amount of credit hours
+            creditHours = soup.find('span', class_='credit-val')
+            if creditHours:
+                creditHours = creditHours.text.strip()
+
+            # Extract the distribution categories
+            courseDistribution = soup.find('span', class_='catalog-distr')
+            if courseDistribution:
+                courseDistribution = courseDistribution.text.strip()[22:]
+            else:
+                courseDistribution = ""
+
+            # Get course ratings
+            overallRating = [-1.0, -1.0, -1.0]
+            with sync_playwright() as p:
+                try:
+                    browser = p.chromium.launch(headless=True)
+                    page = browser.new_page()
+                    page.goto("https://www.cureviews.org/course/" + subjectCode + "/" +
+                            course[len(course) - 4: len(course)])
+                    page.wait_for_selector("._rating_zvrrc_22", timeout=1000)
+                    overallRating = page.query_selector_all("._rating_zvrrc_22")
+                    for i in range(3):
+                        overallRating[i] = float(overallRating[i].text_content().strip())
+                except Exception as e:
+                    overallRating = [-1.0, -1.0, -1.0]
+                finally:
+                    browser.close()
+
+            # Vector creation
+            vector = model.encode(course + " | " + courseName + ": " + courseDescription,
+                                convert_to_numpy=True)
+
+            # Store all the course information
+            course_key = course + " | " + courseName
+            subjectRoster[course_key] = courseDescription
+            subjectCredits[course_key] = creditHours
+            subjectDistributions[course_key] = courseDistribution
+            subjectVectors[course_key] = vector
+            subjectRatings[course_key] = overallRating
+            subjectPrereqs[course_key] = prerequisites
+            print(course_key)
+
+        # Store subject information in main dictionaries
+        courseRoster[subjectCode] = subjectRoster
+        courseCreditHours[subjectCode] = subjectCredits
+        courseDistributions[subjectCode] = subjectDistributions
+        courseVectors[subjectCode] = subjectVectors
+        courseRatings[subjectCode] = subjectRatings
+        coursePrereqs[subjectCode] = subjectPrereqs
+
+    # Insert all data into database
     count = 0
     for key in courseRoster.keys():
         for sub_key in courseRoster[key].keys():
@@ -171,8 +180,9 @@ def makeDB(seasonCode):
             id = count
             full_name = sub_key
             subject = key
-            courseNumber = sub_key[sub_key.index(" | ") - 5 : sub_key.index(" | ")]
+            courseNumber = sub_key[sub_key.index(" | ") - 4 : sub_key.index(" | ")]
             description = courseRoster[key][sub_key]
+            prerequisites = coursePrereqs[key][sub_key]
             vector_blob = pickle.dumps(courseVectors[key][sub_key])
             distributions = courseDistributions[key][sub_key]
             credits = courseCreditHours[key][sub_key]
@@ -189,11 +199,12 @@ def makeDB(seasonCode):
 
             cursor.execute('''
                 INSERT INTO courses (id, full_name, subject, course_number, description, 
-                description_vector, distributions, credits, overall_rating, difficulty_rating, 
-                workload_rating, is_fws, is_lad) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                (id, full_name, subject, courseNumber, description, vector_blob,
-                            distributions, credits, overallRating, difficultyRating,
-                            workloadRating, fws, lad))
+                prerequisites, description_vector, distributions, credits, overall_rating, 
+                difficulty_rating, workload_rating, is_fws, is_lad) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                (id, full_name, subject, courseNumber, description, prerequisites,
+                vector_blob, distributions, credits, overallRating, difficultyRating,
+                workloadRating, fws, lad))
             conn.commit()
     conn.close()
 

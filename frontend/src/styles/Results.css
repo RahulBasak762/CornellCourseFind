@@ -9,8 +9,20 @@
     cursor: pointer;
 }
 
+.resultsContainer {
+    display: flex;
+    width: 100%;
+    position: fixed;
+    overflow: hidden;
+}
+
 .results{
-    padding-top: 7%;
+    padding-top: 6%;
+    overflow-y:auto;
+
+    overflow-y: auto;
+    position: relative;
+    box-sizing: border-box;
 }
 
 .courseDropdownMenu{

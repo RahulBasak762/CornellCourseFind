@@ -1,11 +1,9 @@
-/* eslint-disable no-unused-vars */
+ 
 import { useNavigate } from "react-router-dom"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";  // Added useRef
 import api from "../api";
 import "../styles/Home.css"
 import TaskBar from "../components/TaskBar";
-
-
 
 function Home() {
     const subjectCodes = [ "AAS", "AEM", "AEP", "AIIS", "AIRS", "ALS", "AMST", "ANSC", 
@@ -30,7 +28,7 @@ function Home() {
         "TECH", "TECHIE", "THAI", "TIBET", "TOX", "TURK", "UKRAN", "UNILWYL", 
         "URDU", "VETCS", "VETMI", "VIEN", "VIET", "VISST", "VTBMS", "VTMED", 
         "VTPEH", "VTPMD", "WOLOF", "WRIT", "YORUB", "ZULU"
-      ];
+    ];
       
     const distributionCodes = ['ALC-AAP', 'ALC-AS', 'ALC-HA', 'BIO-AG', 'BIO-AS', 
         'BIOLS-AG', 'BIONLS-AG', 'CA-AAP', 'CA-AG', 'CA-AS', 'CA-HE', 'CE-EN', 
@@ -50,24 +48,28 @@ function Home() {
         "SBA-AS", "SBA-HE", "SSC-AAP", "SSC-AS", "SSC-HA", 'GLC-AAP', 'GLC-AS', 'GLC-HA', 
         'GLC-AAP', 'GLC-AS', 'GLC-HA', 'FL-AAP', 'FL-AG', 'CE-EN', 'SCD-AS', 'D-AG'];
 
-
     const navigate = useNavigate();
     const [query, setQuery] = useState("")
     const [loading, setLoading] = useState(false);
+    const abortControllerRef = useRef(null);  // Added abort controller ref
 
+    // Added cleanup effect
+    useEffect(() => {
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-
     const [filteredSubjectCodes, setFilteredSubjectCodes] = useState(subjectCodes);
     const [filteredDistributions, setDistributions] = useState([]);
-
     const [minCreditHours, setMinCreditHours] = useState(0);
     const [maxCreditHours, setMaxCreditHours] = useState(15);
     const [minCourseNumber, setMinCourseNumber] = useState(0);
     const [maxCourseNumber, setMaxCourseNumber] = useState(10000);
-
     const [requireFWS, setRequireFWS] = useState(false)
-
 
     const toggleDropdown = () => setIsFilterOpen(!isFilterOpen);
 
@@ -77,7 +79,7 @@ function Home() {
             ? [] 
             : [...subjectCodes]
         );
-      };
+    };
 
     const toggleSubjectCode = (subject) => {
         setFilteredSubjectCodes(prev =>
@@ -85,32 +87,55 @@ function Home() {
         )
     }
 
-      const toggleAllDistributions = () => {
+    const toggleAllDistributions = () => {
         setDistributions(
           filteredDistributions.length === distributionCodes.length 
             ? [] 
             : [...distributionCodes]
         );
-      };
+    };
 
-      const toggleDistribution = (distribution) => {
+    const toggleDistribution = (distribution) => {
         setDistributions(prev => 
             prev.includes(distribution) ? prev.filter(s => s !== distribution) : [...prev, distribution]
         )
-      }
+    }
 
-      const setLAD = () => {
+    const setLAD = () => {
         setDistributions(liberalArtDistribution);
-      }
+    }
 
     const handleSubmit = async (e) => {
-        setLoading(true);
         e.preventDefault();
+        if (loading) return;
+
+        // Abort any existing request
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        // Create new AbortController for this request
+        abortControllerRef.current = new AbortController();
+        
+        setLoading(true);
         try {
-            //TODO: figure out what the url is
-            const response = await api.post("chat/", {query, minCourseNumber, maxCourseNumber, filteredSubjectCodes, filteredDistributions, minCreditHours, maxCreditHours, requireFWS})
+            const response = await api.post("http://localhost:8000/chat/", 
+                {
+                    query, 
+                    minCourseNumber, 
+                    maxCourseNumber, 
+                    filteredSubjectCodes, 
+                    filteredDistributions, 
+                    minCreditHours, 
+                    maxCreditHours, 
+                    requireFWS
+                },
+                {
+                    signal: abortControllerRef.current.signal
+                }
+            );
+
             if (response.data) {
-                // Navigate to results page with the processed data
                 navigate("/results", {
                     state: {
                         result: response.data,
@@ -127,10 +152,14 @@ function Home() {
                 throw new Error('No data received from server');
             } 
         } catch(error) {
-            alert(error);
-            handleLogout;
+            if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+                alert(error);
+                handleLogout();
+            }
         } finally {
-            setLoading(false)
+            if (abortControllerRef.current) {
+                setLoading(false);
+            }
         }
     }
 
@@ -149,9 +178,7 @@ function Home() {
 
     return (
         <div>
-
             <TaskBar/>
-
 
             <div>
                 <h1 className="greeting">What do 
@@ -159,7 +186,6 @@ function Home() {
                 you want to learn?
                 </h1>               
             </div>
-
 
             <form onSubmit={handleSubmit}>
                 <div className="searchBar">
@@ -173,9 +199,16 @@ function Home() {
                             value={query} 
                             className="query-input"
                             placeholder="Ask CourseFind"
-                        ></input>
+                            disabled={loading}
+                        />
             
-                        <button className="query-button" type="submit">Submit</button>
+                        <button 
+                            className="query-button" 
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading ? 'Loading...' : 'Submit'}
+                        </button>
 
                         {isFilterOpen || 
                             <button type='button' onClick={toggleDropdown} className="closedFilterDropdownButton">
@@ -183,15 +216,10 @@ function Home() {
                             </button>
                         }
 
-
-
-
                         {isFilterOpen &&
                             <div className="buttonContainers">
                                 <div className="dropdownMenu">
-
                                     <div className="headerContainer">
-
                                         <div className='subjectCode'>
                                             Subject Area
                                             <br/>
@@ -208,8 +236,8 @@ function Home() {
                                                         ? 'Deselect All' 
                                                         : 'Select All'}
                                                 </span>
-
                                             </div>
+
                                             <div className="isFWS" onClick={() => {setRequireFWS(!requireFWS)}}>
                                                 <input 
                                                     type="checkbox"
@@ -222,7 +250,6 @@ function Home() {
                                                 </span>
                                             </div>
 
-                    
                                             <div className="subjectCodeCheckboxes">
                                                 {subjectCodes.map(subjectCode => (
                                                 <div 
@@ -238,10 +265,7 @@ function Home() {
                                                 </div>
                                                 ))}
                                             </div>
-                                            
-
                                         </div>
-
 
                                         <div className='subjectNumbers'>
                                             Course Number
@@ -267,13 +291,12 @@ function Home() {
                                             value={maxCourseNumber}
                                             onChange={(e) => setMaxCourseNumber(e.target.value)}
                                             className="MinMaxInputs"
-                                            step='1000'
+                                            step='step=1000'
                                             min={minCourseNumber}
                                             max='10000'
                                             />
 
                                         </div>
-
 
                                         <div className='credits'>
                                             Credits
@@ -305,13 +328,11 @@ function Home() {
                                             />
                                         </div>
 
-
                                         <div className='distributions'>
-
                                             Distributions
                                             <br/>
 
-                                            <div  className="distributionSelectDeselectAllText" onClick={toggleAllDistributions}>
+                                            <div className="distributionSelectDeselectAllText" onClick={toggleAllDistributions}>
                                                 <input 
                                                     type="checkbox"
                                                     checked={filteredDistributions.length === distributionCodes.length}
@@ -326,7 +347,6 @@ function Home() {
                                             </div>
 
                                             <div className='isLAD' onClick={setLAD}>
-
                                                 <input 
                                                     type="checkbox"
                                                     checked={filteredDistributions.every(value => liberalArtDistribution.includes(value)) && filteredDistributions.length === liberalArtDistribution.length}
@@ -336,9 +356,7 @@ function Home() {
                                                 <span>
                                                     Liberal Art Distributions
                                                 </span>
-
                                             </div>
-                                        
 
                                             <div className="distributionCheckboxes">
                                                 {distributionCodes.map(distributionCode => (
@@ -356,27 +374,14 @@ function Home() {
                                                 ))}
                                             </div>
                                         </div>
-
-
-
                                     </div>
-
                                 </div>
                                 <button type='button' onClick={toggleDropdown} className="openFilterDropdownButton">Close Filters</button>
-                                
-
-
-                                {/* Subject Area, Subject Numbers, Credits, Distributions/LAD , fws*/}
                             </div>
                         }
-
-
                     </div>
-                    
                 </div>
-                
             </form>
-
         </div>
     )
 }
