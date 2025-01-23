@@ -21,7 +21,9 @@ The University Course Finder is a web application that enables students to disco
 To run the University Course Finder locally:
 
 Clone the repository:
-```Copygit clone https://github.com/RahulBasak762/CornellCourseFind.git```
+```
+Copygit clone https://github.com/RahulBasak762/CornellCourseFind.git
+```
 
 Install backend dependencies:
 ```
@@ -31,7 +33,9 @@ cd ..
 ```
 
 Build and run the Docker containers:
-```docker compose up --build```
+```
+docker compose up --build
+```
 
 Access the app at http://localhost:4173/
 
