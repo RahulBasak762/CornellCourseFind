@@ -21,13 +21,13 @@ The University Course Finder is a web application that enables students to disco
 To run the University Course Finder locally:
 
 Clone the repository:
-Copygit clone https://github.com/your-username/university-course-finder.git
+'''Copygit clone https://github.com/your-username/university-course-finder.git'''
 
 Build the Docker container:
-Copydocker build -t course-finder .
+'''Copydocker build -t course-finder .'''
 
 Run the Docker container:
-Copydocker run -p 8000:8000 course-finder
+'''Copydocker run -p 8000:8000 course-finder'''
 
 Access the app at http://localhost:8000.
 
