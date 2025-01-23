@@ -23,6 +23,13 @@ To run the University Course Finder locally:
 Clone the repository:
 ```Copygit clone https://github.com/RahulBasak762/CornellCourseFind.git```
 
+Install backend dependencies:
+```
+cd CornellCourseFind
+pip install -r requirements.txt
+cd ..
+```
+
 Build and run the Docker containers:
 ```docker compose up --build```
 
