@@ -28,3 +28,7 @@ Build and run the Docker containers:
 
 Access the app at http://localhost:4173/
 
+<img width="1512" alt="image" src="https://github.com/user-attachments/assets/54a43d90-3955-4967-ac1c-8c45f56575be" />
+
+
+
