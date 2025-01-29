@@ -1,7 +1,7 @@
 # University Course Finder
 
 ## Purpose
-The University Course Finder is a web application that enables students to discover relevant university courses through natural language queries. It aims to simplify the course selection process by providing personalized recommendations based on course content.
+The Cornell Course Finder is a web application that enables students to discover relevant courses through natural language queries. It aims to simplify the course selection process by providing personalized recommendations based on course content.
 
 ## Implementation
 
